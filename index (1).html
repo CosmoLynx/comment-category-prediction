@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Comment Category Prediction | ML Project Blog</title>
+  <meta name="description" content="An exciting, funny, and passionate blog-style showcase of a machine learning project for online comment category prediction." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root, [data-theme="light"] {
+      --text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
+      --text-sm: clamp(0.875rem, 0.8rem + 0.35vw, 1rem);
+      --text-base: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+      --text-lg: clamp(1.125rem, 1rem + 0.75vw, 1.5rem);
+      --text-xl: clamp(1.5rem, 1.2rem + 1.25vw, 2.25rem);
+      --text-2xl: clamp(2rem, 1.2rem + 2.5vw, 3.5rem);
+      --text-3xl: clamp(2.5rem, 1rem + 4vw, 5rem);
+      --space-1: 0.25rem; --space-2: 0.5rem; --space-3: 0.75rem; --space-4: 1rem;
+      --space-5: 1.25rem; --space-6: 1.5rem; --space-8: 2rem; --space-10: 2.5rem;
+      --space-12: 3rem; --space-16: 4rem; --space-20: 5rem;
+      --color-bg: #fff8f2;
+      --color-surface: #ffffff;
+      --color-surface-2: #fff2e8;
+      --color-surface-offset: #ffe2cf;
+      --color-border: rgba(35, 24, 21, 0.12);
+      --color-text: #261816;
+      --color-text-muted: #745a53;
+      --color-text-faint: #b08b7d;
+      --color-primary: #ff5a36;
+      --color-primary-hover: #e84724;
+      --color-secondary: #ffb703;
+      --color-accent: #ff006e;
+      --color-success: #188c63;
+      --color-blue: #2364ff;
+      --color-inverse: #fffaf7;
+      --shadow-sm: 0 6px 18px rgba(79, 31, 10, 0.08);
+      --shadow-md: 0 16px 40px rgba(79, 31, 10, 0.14);
+      --radius-sm: 0.5rem;
+      --radius-md: 0.9rem;
+      --radius-lg: 1.4rem;
+      --radius-xl: 2rem;
+      --content: 1180px;
+      --font-display: 'Bricolage Grotesque', sans-serif;
+      --font-body: 'Inter', sans-serif;
+    }
+
+    [data-theme="dark"] {
+      --color-bg: #160f12;
+      --color-surface: #22171c;
+      --color-surface-2: #2a1b22;
+      --color-surface-offset: #3a2024;
+      --color-border: rgba(255, 238, 227, 0.12);
+      --color-text: #fff3ea;
+      --color-text-muted: #d8b8ab;
+      --color-text-faint: #a97f77;
+      --color-primary: #ff7a59;
+      --color-primary-hover: #ff967b;
+      --color-secondary: #ffc74a;
+      --color-accent: #ff4d9d;
+      --color-success: #4cd39d;
+      --color-blue: #78a2ff;
+      --color-inverse: #190f10;
+      --shadow-sm: 0 8px 22px rgba(0, 0, 0, 0.22);
+      --shadow-md: 0 18px 48px rgba(0, 0, 0, 0.35);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: var(--font-body);
+      font-size: var(--text-base);
+      line-height: 1.6;
+      color: var(--color-text);
+      background:
+        radial-gradient(circle at top left, rgba(255,90,54,0.10), transparent 32%),
+        radial-gradient(circle at top right, rgba(255,183,3,0.14), transparent 28%),
+        radial-gradient(circle at 80% 40%, rgba(255,0,110,0.08), transparent 30%),
+        var(--color-bg);
+    }
+
+    a { color: inherit; text-decoration: none; }
+    img, svg { display: block; max-width: 100%; }
+    button { font: inherit; }
+
+    .container {
+      width: min(calc(100% - 2rem), var(--content));
+      margin: 0 auto;
+    }
+
+    .skip-link {
+      position: absolute;
+      left: -999px;
+      top: 1rem;
+      background: var(--color-primary);
+      color: var(--color-inverse);
+      padding: 0.75rem 1rem;
+      border-radius: var(--radius-sm);
+      z-index: 1000;
+    }
+    .skip-link:focus { left: 1rem; }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      backdrop-filter: blur(14px);
+      background: color-mix(in srgb, var(--color-bg) 78%, transparent);
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-4);
+      padding: var(--space-4) 0;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.85rem;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+    }
+
+    .brand-mark {
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 0.9rem;
+      background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+      color: white;
+      display: grid;
+      place-items: center;
+      box-shadow: var(--shadow-sm);
+      transform: rotate(-8deg);
+    }
+
+    .brand-text {
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .nav-links a {
+      color: var(--color-text-muted);
+      font-size: var(--text-sm);
+      font-weight: 600;
+    }
+
+    .theme-toggle {
+      min-width: 44px;
+      min-height: 44px;
+      border-radius: 999px;
+      border: 1px solid var(--color-border);
+      background: var(--color-surface);
+      color: var(--color-text);
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .hero {
+      padding: clamp(4rem, 10vw, 8rem) 0 clamp(3rem, 8vw, 6rem);
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: clamp(1.5rem, 4vw, 3rem);
+      align-items: center;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.55rem 0.9rem;
+      border-radius: 999px;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      font-size: var(--text-sm);
+      font-weight: 700;
+      color: var(--color-text-muted);
+      box-shadow: var(--shadow-sm);
+      margin-bottom: var(--space-5);
+    }
+
+    .eyebrow .dot {
+      width: 0.65rem;
+      height: 0.65rem;
+      border-radius: 999px;
+      background: var(--color-accent);
+      box-shadow: 0 0 0 0.35rem rgba(255, 0, 110, 0.14);
+    }
+
+    h1, h2, h3 {
+      font-family: var(--font-display);
+      letter-spacing: -0.05em;
+      line-height: 0.95;
+      margin: 0;
+    }
+
+    h1 {
+      font-size: var(--text-3xl);
+      max-width: 10ch;
+    }
+
+    .hero p {
+      color: var(--color-text-muted);
+      max-width: 62ch;
+      margin: var(--space-5) 0 var(--space-6);
+      font-size: clamp(1rem, 0.98rem + 0.35vw, 1.15rem);
+    }
+
+    .cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.9rem;
+      margin-bottom: var(--space-6);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      min-height: 48px;
+      padding: 0.95rem 1.2rem;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      font-size: var(--text-sm);
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease;
+    }
+
+    .btn:hover { transform: translateY(-2px); }
+    .btn-primary {
+      background: var(--color-primary);
+      color: white;
+      box-shadow: var(--shadow-md);
+    }
+    .btn-primary:hover { background: var(--color-primary-hover); }
+    .btn-secondary {
+      background: var(--color-surface);
+      color: var(--color-text);
+      border-color: var(--color-border);
+    }
+
+    .hero-card {
+      position: relative;
+      background: linear-gradient(160deg, var(--color-surface), var(--color-surface-2));
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-xl);
+      padding: clamp(1.2rem, 3vw, 2rem);
+      box-shadow: var(--shadow-md);
+      overflow: hidden;
+      isolation: isolate;
+    }
+
+    .hero-card::before,
+    .hero-card::after {
+      content: "";
+      position: absolute;
+      border-radius: 999px;
+      filter: blur(6px);
+      z-index: -1;
+    }
+
+    .hero-card::before {
+      width: 12rem;
+      height: 12rem;
+      background: rgba(255, 183, 3, 0.2);
+      top: -3rem;
+      right: -2rem;
+    }
+
+    .hero-card::after {
+      width: 10rem;
+      height: 10rem;
+      background: rgba(255, 0, 110, 0.14);
+      bottom: -2rem;
+      left: -1rem;
+    }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1rem;
+      margin-top: 1.25rem;
+    }
+
+    .stat {
+      background: rgba(255,255,255,0.45);
+      border: 1px solid var(--color-border);
+      border-radius: 1.2rem;
+      padding: 1rem;
+    }
+
+    [data-theme="dark"] .stat {
+      background: rgba(255,255,255,0.03);
+    }
+
+    .stat strong {
+      display: block;
+      font-family: var(--font-display);
+      font-size: 1.8rem;
+      line-height: 1;
+      margin-bottom: 0.35rem;
+    }
+
+    .stat span {
+      font-size: var(--text-sm);
+      color: var(--color-text-muted);
+      font-weight: 600;
+    }
+
+    .section {
+      padding: clamp(3.2rem, 8vw, 5rem) 0;
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      align-items: end;
+      margin-bottom: 1.5rem;
+    }
+
+    .section-head h2 {
+      font-size: var(--text-2xl);
+      max-width: 12ch;
+    }
+
+    .section-head p {
+      max-width: 54ch;
+      color: var(--color-text-muted);
+      margin: 0;
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1rem;
+    }
+
+    .card, .wide-card, .table-wrap, .result-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .card {
+      padding: 1.25rem;
+      min-height: 100%;
+    }
+
+    .card h3 {
+      font-size: 1.35rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .card p, .wide-card p, .result-card p {
+      color: var(--color-text-muted);
+      margin: 0;
+    }
+
+    .fun-label {
+      display: inline-block;
+      margin-bottom: 0.8rem;
+      padding: 0.35rem 0.7rem;
+      background: var(--color-surface-2);
+      border: 1px solid var(--color-border);
+      border-radius: 999px;
+      font-size: var(--text-xs);
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--color-accent);
+    }
+
+    .story-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 1rem;
+      align-items: start;
+    }
+
+    .wide-card {
+      padding: 1.4rem;
+    }
+
+    .wide-card h3 {
+      font-size: 1.6rem;
+      margin-bottom: 0.8rem;
+    }
+
+    .bullet-list {
+      list-style: none;
+      padding: 0;
+      margin: 1rem 0 0;
+      display: grid;
+      gap: 0.85rem;
+    }
+
+    .bullet-list li {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 0.75rem;
+      align-items: start;
+      color: var(--color-text-muted);
+    }
+
+    .bullet-list li strong {
+      color: var(--color-text);
+    }
+
+    .mini-badge {
+      width: 1.6rem;
+      height: 1.6rem;
+      display: grid;
+      place-items: center;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: white;
+      background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+      margin-top: 0.1rem;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      padding: 0.5rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 620px;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 1rem;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    th {
+      font-size: var(--text-xs);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--color-text-muted);
+    }
+
+    td strong { font-weight: 800; }
+
+    .result-card {
+      padding: 1.35rem;
+    }
+
+    .result-bars {
+      display: grid;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .bar-row {
+      display: grid;
+      grid-template-columns: 135px 1fr 60px;
+      gap: 0.8rem;
+      align-items: center;
+      font-size: var(--text-sm);
+      font-weight: 700;
+    }
+
+    .bar {
+      height: 0.95rem;
+      border-radius: 999px;
+      background: var(--color-surface-2);
+      overflow: hidden;
+      border: 1px solid var(--color-border);
+    }
+
+    .bar > span {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: 0.95fr 1.05fr;
+      gap: 1rem;
+    }
+
+    .quote-box {
+      padding: 1.4rem;
+      border-radius: var(--radius-lg);
+      background: linear-gradient(135deg, rgba(255,90,54,0.12), rgba(255,183,3,0.12));
+      border: 1px solid var(--color-border);
+    }
+
+    .quote-box p {
+      margin: 0;
+      font-size: var(--text-lg);
+      font-weight: 700;
+      line-height: 1.4;
+      color: var(--color-text);
+    }
+
+    .quote-box small {
+      display: block;
+      margin-top: 0.8rem;
+      color: var(--color-text-muted);
+      font-weight: 700;
+    }
+
+    .footer {
+      padding: 2rem 0 3rem;
+      color: var(--color-text-muted);
+    }
+
+    .footer-box {
+      border-top: 1px solid var(--color-border);
+      padding-top: 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(18px);
+      transition: opacity 600ms ease, transform 600ms ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 980px) {
+      .hero-grid,
+      .story-grid,
+      .split,
+      .card-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .section-head {
+        align-items: start;
+        flex-direction: column;
+      }
+
+      .nav {
+        align-items: flex-start;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .nav {
+        flex-direction: column;
+      }
+
+      .nav-links {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      h1 { max-width: 12ch; }
+
+      .bar-row {
+        grid-template-columns: 1fr;
+      }
+
+      .footer-box {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#content">Skip to content</a>
+
+  <header class="site-header">
+    <div class="container nav">
+      <a class="brand" href="#top" aria-label="Comment category prediction home">
+        <span class="brand-mark" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M4 6.5C4 4.567 5.567 3 7.5 3H16.5C18.433 3 20 4.567 20 6.5V12.5C20 14.433 18.433 16 16.5 16H11L6 20V16.5C4.895 15.861 4 14.733 4 13.2V6.5Z" fill="currentColor"/>
+          </svg>
+        </span>
+        <span class="brand-text">Comment Chaos → Model Magic</span>
+      </a>
+
+      <nav class="nav-links" aria-label="Primary navigation">
+        <a href="#story">Story</a>
+        <a href="#pipeline">Pipeline</a>
+        <a href="#results">Results</a>
+        <a href="#future">Future</a>
+        <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch theme">
+          <span aria-hidden="true">🌙</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <main id="content">
+    <section class="hero" id="top">
+      <div class="container hero-grid">
+        <div class="reveal">
+          <div class="eyebrow"><span class="dot"></span> Machine learning, spicy comments, and one stubborn class imbalance problem</div>
+          <h1>Teaching machines to read the room… or at least the comment section.</h1>
+          <p>
+            This project tackles multi-class comment category prediction using NLP, metadata, and a stacking ensemble that behaved like a well-coached superhero team. The dataset was huge, the classes were imbalanced, and class 3 basically played hide-and-seek the entire time.
+          </p>
+          <div class="cta-row">
+            <a class="btn btn-primary" href="#results">See the winning model</a>
+            <a class="btn btn-secondary" href="#pipeline">Explore the pipeline</a>
+          </div>
+          <p><strong>Plot twist:</strong> the final stacking ensemble reached a validation macro F1 of <strong>0.82</strong>, which was the best score in the project.</p>
+        </div>
+
+        <aside class="hero-card reveal" aria-label="Project summary">
+          <div class="fun-label">Project energy report</div>
+          <h2 style="font-size: var(--text-xl); margin-bottom: 0.8rem;">Big dataset. Bigger personality.</h2>
+          <p>The model reads comments plus metadata, squeezes signal out of 30,057 features, and learns from several different classifiers before the ensemble makes the final call.</p>
+          <div class="stat-grid">
+            <div class="stat"><strong>198K</strong><span>Training comments</span></div>
+            <div class="stat"><strong>102K</strong><span>Test comments</span></div>
+            <div class="stat"><strong>30K</strong><span>Top TF-IDF terms kept</span></div>
+            <div class="stat"><strong>0.82</strong><span>Validation macro F1</span></div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="section" id="story">
+      <div class="container story-grid">
+        <article class="wide-card reveal">
+          <div class="fun-label">Why this project exists</div>
+          <h2>Because the internet does not come with a pause button.</h2>
+          <p>
+            Online platforms collect mountains of comments every day, and expecting humans to manually categorize all of them is a recipe for burnout and caffeine dependency. This project builds an automated classifier that predicts one of four labels for each comment using both text and structured metadata.
+          </p>
+          <ul class="bullet-list">
+            <li><span class="mini-badge">1</span><span><strong>The mission:</strong> classify online comments into labels 0 to 3.</span></li>
+            <li><span class="mini-badge">2</span><span><strong>The challenge:</strong> class imbalance made minority classes much harder to learn.</span></li>
+            <li><span class="mini-badge">3</span><span><strong>The strategy:</strong> feature engineering, classical ML, and a stacking ensemble finale.</span></li>
+          </ul>
+        </article>
+
+        <aside class="quote-box reveal">
+          <p>“Class 0 showed up like it owned the place. Class 3 showed up like it was trying not to be perceived.”</p>
+          <small>Accurate project mood, scientifically speaking.</small>
+        </aside>
+      </div>
+    </section>
+
+    <section class="section" id="pipeline">
+      <div class="container">
+        <div class="section-head reveal">
+          <div>
+            <div class="fun-label">Pipeline breakdown</div>
+            <h2>From messy comments to machine-learned confidence.</h2>
+          </div>
+          <p>The pipeline mixes text preprocessing, metadata engineering, feature selection, and multiple classifiers. Nothing sci-fi, everything practical, and somehow that made it work really well.</p>
+        </div>
+
+        <div class="card-grid">
+          <article class="card reveal">
+            <div class="fun-label">Step 01</div>
+            <h3>EDA with receipts</h3>
+            <p>We checked duplication, missing values, skewed engagement counts, temporal patterns, and feature-label relationships. `if_2` quietly became the mysterious overachiever of the structured features.</p>
+          </article>
+          <article class="card reveal">
+            <div class="fun-label">Step 02</div>
+            <h3>Feature engineering</h3>
+            <p>We extracted time buckets, comment length stats, punctuation counts, lexical diversity, reaction features, and emoticon density. Yes, even emoticons got audited.</p>
+          </article>
+          <article class="card reveal">
+            <div class="fun-label">Step 03</div>
+            <h3>Text to vectors</h3>
+            <p>Comments were cleaned, transformed with TF-IDF, and trimmed from 149,597 terms down to 30,000 using chi-square selection. The feature space stayed rich without becoming a computational horror movie.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container split">
+        <article class="wide-card reveal">
+          <div class="fun-label">What went into the model</div>
+          <h3>Structured features plus text features = better instincts</h3>
+          <ul class="bullet-list">
+            <li><span class="mini-badge">T</span><span><strong>Text branch:</strong> cleaned comment text, TF-IDF vectorization, and chi-square feature selection.</span></li>
+            <li><span class="mini-badge">S</span><span><strong>Structured branch:</strong> scaling for numeric features, one-hot encoding for categorical data, and pass-through for binary flags.</span></li>
+            <li><span class="mini-badge">F</span><span><strong>Final feature size:</strong> 30,057 dimensions per sample after concatenation.</span></li>
+          </ul>
+        </article>
+
+        <article class="wide-card reveal">
+          <div class="fun-label">Models tried</div>
+          <h3>The classifier audition was very competitive.</h3>
+          <ul class="bullet-list">
+            <li><span class="mini-badge">L</span><span><strong>Logistic Regression</strong> came in strong and balanced.</span></li>
+            <li><span class="mini-badge">S</span><span><strong>SGD and Passive Aggressive</strong> added speed and diversity.</span></li>
+            <li><span class="mini-badge">V</span><span><strong>LinearSVC</strong> handled sparse text features like a pro.</span></li>
+            <li><span class="mini-badge">G</span><span><strong>LightGBM and XGBoost</strong> tested the tree-based route.</span></li>
+            <li><span class="mini-badge">★</span><span><strong>Stacking Ensemble</strong> took the crown with the best validation score.</span></li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="results">
+      <div class="container">
+        <div class="section-head reveal">
+          <div>
+            <div class="fun-label">Performance board</div>
+            <h2>Who cooked, who almost cooked, and who needed seasoning.</h2>
+          </div>
+          <p>The final comparison shows a tight race near the top, with the stacking ensemble edging out the rest. LightGBM was close enough to keep the competition interesting.</p>
+        </div>
+
+        <div class="table-wrap reveal">
+          <table aria-label="Model performance table">
+            <thead>
+              <tr>
+                <th>Model</th>
+                <th>Train F1</th>
+                <th>Validation F1</th>
+                <th>Quick vibe check</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Logistic Regression</strong></td>
+                <td>0.886</td>
+                <td>0.805</td>
+                <td>Reliable, balanced, no drama.</td>
+              </tr>
+              <tr>
+                <td><strong>SGD Classifier</strong></td>
+                <td>0.824</td>
+                <td>0.792</td>
+                <td>Fast and useful in the ensemble squad.</td>
+              </tr>
+              <tr>
+                <td><strong>Passive Aggressive</strong></td>
+                <td>0.872</td>
+                <td>0.792</td>
+                <td>A little intense, but respectable.</td>
+              </tr>
+              <tr>
+                <td><strong>LinearSVC</strong></td>
+                <td>0.904</td>
+                <td>0.806</td>
+                <td>Sparse-text specialist energy.</td>
+              </tr>
+              <tr>
+                <td><strong>LightGBM</strong></td>
+                <td>0.917</td>
+                <td>0.814</td>
+                <td>Almost stole the show solo.</td>
+              </tr>
+              <tr>
+                <td><strong>XGBoost</strong></td>
+                <td>0.844</td>
+                <td>0.787</td>
+                <td>Not bad, just not the main character.</td>
+              </tr>
+              <tr>
+                <td><strong>Stacking Ensemble</strong></td>
+                <td>0.898</td>
+                <td><strong>0.820</strong></td>
+                <td>Avengers assemble, but for classifiers.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="result-card reveal" style="margin-top: 1rem;">
+          <div class="fun-label">Validation F1 bars</div>
+          <h3 style="font-size: 1.65rem; margin-bottom: 0.3rem;">Macro F1 at a glance</h3>
+          <p>The ensemble wins by a small but meaningful margin, which is exactly the kind of tiny edge that matters in competitive ML work.</p>
+          <div class="result-bars">
+            <div class="bar-row"><span>Logistic Regression</span><div class="bar"><span style="width: 80.5%;"></span></div><span>0.805</span></div>
+            <div class="bar-row"><span>SGD Classifier</span><div class="bar"><span style="width: 79.2%;"></span></div><span>0.792</span></div>
+            <div class="bar-row"><span>Passive Aggressive</span><div class="bar"><span style="width: 79.2%;"></span></div><span>0.792</span></div>
+            <div class="bar-row"><span>LinearSVC</span><div class="bar"><span style="width: 80.6%;"></span></div><span>0.806</span></div>
+            <div class="bar-row"><span>LightGBM</span><div class="bar"><span style="width: 81.4%; background: linear-gradient(90deg, var(--color-secondary), var(--color-primary));"></span></div><span>0.814</span></div>
+            <div class="bar-row"><span>XGBoost</span><div class="bar"><span style="width: 78.7%; background: linear-gradient(90deg, var(--color-blue), var(--color-primary));"></span></div><span>0.787</span></div>
+            <div class="bar-row"><span>Stacking Ensemble</span><div class="bar"><span style="width: 82%; background: linear-gradient(90deg, var(--color-primary), var(--color-accent));"></span></div><span><strong>0.820</strong></span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="future">
+      <div class="container split">
+        <article class="wide-card reveal">
+          <div class="fun-label">What made this hard</div>
+          <h3>Class imbalance was the final boss.</h3>
+          <p>
+            The biggest pain point was minority-class performance, especially class 3. A lot of those examples got confused with class 2, suggesting overlapping language patterns that were not fully captured by surface-level text features.
+          </p>
+          <ul class="bullet-list">
+            <li><span class="mini-badge">!</span><span><strong>Problem:</strong> rare classes had fewer examples and weaker separability.</span></li>
+            <li><span class="mini-badge">?</span><span><strong>Observation:</strong> class weighting helped, but it did not fully solve the issue.</span></li>
+            <li><span class="mini-badge">+</span><span><strong>Outcome:</strong> ensembling gave the strongest overall balance.</span></li>
+          </ul>
+        </article>
+
+        <article class="wide-card reveal">
+          <div class="fun-label">Future directions</div>
+          <h3>How this project could get even more dangerous.</h3>
+          <ul class="bullet-list">
+            <li><span class="mini-badge">B</span><span><strong>Transformers:</strong> try BERT, RoBERTa, or DistilBERT for deeper contextual understanding.</span></li>
+            <li><span class="mini-badge">S</span><span><strong>Oversampling:</strong> test SMOTE or ADASYN for minority classes.</span></li>
+            <li><span class="mini-badge">I</span><span><strong>Interpretability:</strong> investigate `if_2`, the mysterious feature MVP.</span></li>
+            <li><span class="mini-badge">C</span><span><strong>Calibration:</strong> align predicted probabilities with real-world confidence.</span></li>
+          </ul>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-box">
+      <p>Built as a lively GitHub Pages showcase for a machine learning classification project.</p>
+      <p>Made with data, determination, and a healthy suspicion of class 3.</p>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      const root = document.documentElement;
+      const toggle = document.querySelector('[data-theme-toggle]');
+      let theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      root.setAttribute('data-theme', theme);
+      const setIcon = () => {
+        toggle.innerHTML = theme === 'dark' ? '<span aria-hidden="true">☀️</span>' : '<span aria-hidden="true">🌙</span>';
+        toggle.setAttribute('aria-label', theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
+      };
+      setIcon();
+      toggle.addEventListener('click', () => {
+        theme = theme === 'dark' ? 'light' : 'dark';
+        root.setAttribute('data-theme', theme);
+        setIcon();
+      });
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) entry.target.classList.add('visible');
+        });
+      }, { threshold: 0.12 });
+
+      document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
+    })();
+  </script>
+</body>
+</html>
